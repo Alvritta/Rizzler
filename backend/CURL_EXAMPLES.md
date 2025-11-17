@@ -53,3 +53,4 @@ curl -X POST 'http://127.0.0.1:8003/calculate-rizz/' \
 - The file path `test1.jpeg` should be relative to where you run curl, or use full path
 
 
+
