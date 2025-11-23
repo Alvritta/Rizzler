@@ -201,8 +201,31 @@ All colors MUST be HSL.
 
 .vintage-theme .bg-gradient-to-r,
 .vintage-theme [class*="bg-gradient"] {
-  background: #4267b2 !important;
+  background: transparent !important;
   background-image: none !important;
+}
+
+/* Fix score display - remove gradient and use solid color */
+.vintage-theme [class*="bg-clip-text"],
+.vintage-theme [class*="text-transparent"] {
+  background: transparent !important;
+  background-image: none !important;
+  -webkit-background-clip: unset !important;
+  background-clip: unset !important;
+  color: #4267b2 !important;
+  -webkit-text-fill-color: #4267b2 !important;
+}
+
+/* Ensure large score text is visible */
+.vintage-theme [class*="text-6xl"],
+.vintage-theme [class*="text-5xl"],
+.vintage-theme [class*="text-4xl"] {
+  color: #4267b2 !important;
+  background: transparent !important;
+  background-image: none !important;
+  -webkit-background-clip: unset !important;
+  background-clip: unset !important;
+  -webkit-text-fill-color: #4267b2 !important;
 }
 
 /* Remove all rounded corners */
@@ -287,8 +310,25 @@ All colors MUST be HSL.
 .vintage-theme nav a[class*="active"],
 .vintage-theme nav a[aria-current="page"],
 .vintage-theme nav a[class*="text-primary"] {
-  background: #4267b2 !important;
-  color: #ffffff !important;
+  background: transparent !important;
+  color: #4267b2 !important;
+  font-weight: bold !important;
+}
+
+/* Ensure navigation icons inherit the active color */
+.vintage-theme nav a[class*="text-primary"] svg,
+.vintage-theme nav a[class*="text-primary"] span {
+  color: #4267b2 !important;
+}
+
+/* Inactive navigation items */
+.vintage-theme nav a[class*="text-muted-foreground"] {
+  color: #666666 !important;
+}
+
+.vintage-theme nav a[class*="text-muted-foreground"] svg,
+.vintage-theme nav a[class*="text-muted-foreground"] span {
+  color: #666666 !important;
 }
 
 /* Vintage links */
