@@ -17,7 +17,20 @@ const ShareMeme = () => {
     // For now, we'll use URL parameter or localStorage
     const shareUrl = new URLSearchParams(window.location.search).get("url");
     if (shareUrl) {
-      setMemeUrl(decodeURIComponent(shareUrl));
+      const decoded = decodeURIComponent(shareUrl);
+      // Normalize URL to avoid mixed-content or malformed URLs in prod
+      const normalized = (() => {
+        try {
+          const u = new URL(decoded);
+          // Force https for production safety if incoming URL is http
+          if (u.protocol === "http:") u.protocol = "https:";
+          return u.toString();
+        } catch (e) {
+          // If it's not a full URL, return as-is
+          return decoded;
+        }
+      })();
+      setMemeUrl(normalized);
       setLoading(false);
     } else {
       // Fallback: try to get from localStorage or show error
@@ -26,10 +39,13 @@ const ShareMeme = () => {
   }, [memeId]);
 
   const currentUrl = window.location.href;
+  const canonicalShareLink = memeUrl
+    ? `${window.location.origin}/share?url=${encodeURIComponent(memeUrl)}`
+    : currentUrl;
   
   const handleCopyLink = async () => {
     try {
-      await navigator.clipboard.writeText(currentUrl);
+      await navigator.clipboard.writeText(canonicalShareLink);
       setCopied(true);
       toast({
         title: "Link copied!",
@@ -51,7 +67,7 @@ const ShareMeme = () => {
         await navigator.share({
           title: "Check out my Rizz Score!",
           text: "I got a rizz score meme!",
-          url: currentUrl,
+          url: canonicalShareLink,
         });
       } catch (err) {
         // User cancelled or error

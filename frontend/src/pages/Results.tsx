@@ -36,7 +36,18 @@ const Results = () => {
   
   // Generate shareable link for meme
   const shareableLink = memeUrl 
-    ? `${window.location.origin}/share?url=${encodeURIComponent(memeUrl)}`
+    ? `${window.location.origin}/share?url=${encodeURIComponent(
+        // normalize scheme - prefer https in production
+        (() => {
+          try {
+            const u = new URL(memeUrl);
+            if (u.protocol === "http:") u.protocol = "https:";
+            return u.toString();
+          } catch (e) {
+            return memeUrl;
+          }
+        })()
+      )}`
     : null;
   
   const handleShareMeme = async () => {
