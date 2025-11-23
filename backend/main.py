@@ -18,6 +18,13 @@ from datetime import datetime
 
 load_dotenv()
 
+# Import meme generator (after load_dotenv to ensure paths are set)
+try:
+    from meme_generator import generate_meme_and_upload
+except ImportError:
+    print("⚠️ Warning: meme_generator not found, meme generation disabled")
+    generate_meme_and_upload = None
+
 app = FastAPI(title="Rizz Calculator API", version="1.0.0")
 
 # CORS middleware
@@ -65,6 +72,7 @@ model = genai.GenerativeModel('gemini-2.5-flash')
 # Pydantic models for request bodies
 class CalculateRizzRequest(BaseModel):
     image_url: str
+    nickname: str
 
 
 @app.get("/")
@@ -143,7 +151,7 @@ async def upload_screenshot(file: UploadFile = File(...)):
 async def calculate_rizz(request: CalculateRizzRequest):
     """
     Calculate rizz score from uploaded screenshot image URL (Button 2)
-    Requires image_url from upload_screenshot endpoint
+    Requires image_url from upload_screenshot endpoint and nickname
     """
     print(f"\n{'='*60}")
     print(f"🔍 CALCULATE_RIZZ ENDPOINT CALLED")
@@ -159,20 +167,29 @@ async def calculate_rizz(request: CalculateRizzRequest):
         request_dict = str(request)
     
     image_url = request.image_url
+    nickname = request.nickname.strip() if request.nickname else ""
+    
     print(f"📝 Image URL: {image_url}")
-    print(f"📝 Image URL type: {type(image_url)}")
-    print(f"📝 Image URL length: {len(image_url) if image_url else 0}")
+    print(f"📝 Nickname: {nickname}")
     
     if not image_url:
         print(f"❌ ERROR: image_url is missing or empty")
-        print(f"   image_url value: {repr(image_url)}")
         raise HTTPException(status_code=400, detail="image_url is required")
+    
+    if not nickname:
+        print(f"❌ ERROR: nickname is missing or empty")
+        raise HTTPException(status_code=400, detail="nickname is required")
+    
+    if len(nickname) > 30:
+        print(f"❌ ERROR: nickname too long")
+        raise HTTPException(status_code=400, detail="nickname must be 30 characters or less")
     
     if not isinstance(image_url, str):
         print(f"❌ ERROR: image_url is not a string. Type: {type(image_url)}")
         raise HTTPException(status_code=400, detail=f"image_url must be a string, got {type(image_url)}")
     
     print(f"✅ Image URL validated: {image_url[:50]}...")
+    print(f"✅ Nickname validated: {nickname}")
     
     try:
         print(f"\n📥 Step 1: Downloading image from Supabase Storage...")
@@ -247,28 +264,62 @@ async def calculate_rizz(request: CalculateRizzRequest):
         print(f"✅ File size validated")
         
         # Use Gemini Vision API to analyze the image for rizz
+        # prompt = """
+        # Analyze this chat screenshot image for "rizz" (charisma/flirt game, charm, smoothness).
+        
+        # Rate the rizz on a scale of 0-100 where:
+        # - 0-30: Needs major work (cringe, awkward, too forward)
+        # - 31-50: Average (decent but could improve)
+        # - 51-70: Good rizz (smooth, engaging, playful)
+        # - 71-85: Great rizz (confident, witty, charming)
+        # - 86-100: God-tier rizz (legendary, smooth operator)
+        
+        # Respond ONLY with valid JSON in this exact format:
+        # {
+        #     "score": <integer 0-100>,
+        #     "suggestions": [
+        #         "<first improvement suggestion>",
+        #         "<second improvement suggestion>",
+        #         "<third improvement suggestion>"
+        #     ],
+        #     "reasoning": "<brief explanation of the score>"
+        # }
+        
+        # Be honest, constructive, and fun in your feedback. Focus on humor, confidence, playfulness, and engagement.
+        # """
         prompt = """
-        Analyze this chat screenshot image for "rizz" (charisma/flirt game, charm, smoothness).
-        
-        Rate the rizz on a scale of 0-100 where:
-        - 0-30: Needs major work (cringe, awkward, too forward)
-        - 31-50: Average (decent but could improve)
-        - 51-70: Good rizz (smooth, engaging, playful)
-        - 71-85: Great rizz (confident, witty, charming)
-        - 86-100: God-tier rizz (legendary, smooth operator)
-        
-        Respond ONLY with valid JSON in this exact format:
-        {
-            "score": <integer 0-100>,
-            "suggestions": [
-                "<first improvement suggestion>",
-                "<second improvement suggestion>",
-                "<third improvement suggestion>"
-            ],
-            "reasoning": "<brief explanation of the score>"
-        }
-        
-        Be honest, constructive, and fun in your feedback. Focus on humor, confidence, playfulness, and engagement.
+        ### ROLE & OBJECTIVE
+You are a brutally honest, elite dating coach and social dynamics expert. Your job is to evaluate the "Rizz" (flirting skill, wit, and charm) of a user's chat conversation. 
+
+*CRITICAL INSTRUCTION:* Do NOT be polite. Do NOT give "participation trophies." Most people are boring—your scoring must reflect that. 
+
+### SCORING RUBRIC (USE THE FULL SCALE)
+You must use the full range of 0-100. Do not bunch scores around 70.
+- *0-30 (The "L" Zone):* Cringey, desperate, boring one-word replies, double-texting without response, or interviewing (asking too many questions).
+- *31-50 (NPC Energy):* Polite but boring. Safe, logical, friendly, but zero sexual tension or excitement. This is the default score for "normal" texts.
+- *51-75 (Solid Game):* Playful, teasing, uses "push-pull," emotional spikes, or good banter. 
+- *76-90 (Rizzler):* genuinely witty, confident, takes risks that pay off, dominant frame.
+- *91-100 (God Tier):* Viral-worthy smoothness. Extremely rare.
+
+### ANALYSIS STEPS
+1. *Detect Dryness:* Is the user just answering questions? (Minus points).
+2. *Detect Desperation:* Are they replying instantly with paragraphs to short texts? (Major minus points).
+3. *Detect Wit:* Did they tease, roleplay, or misinterpret on purpose? (Plus points).
+
+### OUTPUT FORMAT
+Respond ONLY with valid JSON. No markdown, no backticks.
+{
+    "score": <integer 0-100>,
+    "suggestions": [
+        "<first specific actionable tip>",
+        "<second specific actionable tip>",
+        "<third specific actionable tip>"
+    ],
+    "reasoning": "<2-3 sentences. Be punchy and direct. Roast them if the score is low. Praise them if high. Explain EXACTLY why they got this score.>"
+}
+
+CRITICAL: suggestions MUST be an array of exactly 3 strings. Each suggestion should be a specific, actionable tip.
+
         """
         # prompt="""
 #         prompt = """
@@ -401,8 +452,25 @@ async def calculate_rizz(request: CalculateRizzRequest):
             if not isinstance(result.get("score"), int) or not (0 <= result["score"] <= 100):
                 raise ValueError("Invalid score in response")
             
-            if not isinstance(result.get("suggestions"), list) or len(result.get("suggestions", [])) != 3:
-                raise ValueError("Invalid suggestions format")
+            # Handle suggestions - convert string to array if needed
+            suggestions = result.get("suggestions", [])
+            if isinstance(suggestions, str):
+                # If Gemini returned a single string, split it into 3 suggestions
+                print(f"⚠️ WARNING: Suggestions is a string, converting to array")
+                # Try to split by periods or newlines, or create 3 suggestions from the string
+                suggestions_list = [s.strip() for s in suggestions.split('.') if s.strip()][:3]
+                # If we don't have 3, pad with generic suggestions
+                while len(suggestions_list) < 3:
+                    suggestions_list.append("Keep practicing and refining your approach.")
+                result["suggestions"] = suggestions_list[:3]
+            elif not isinstance(suggestions, list):
+                raise ValueError("Suggestions must be an array")
+            elif len(suggestions) != 3:
+                # If we have fewer than 3, pad with generic ones
+                print(f"⚠️ WARNING: Got {len(suggestions)} suggestions, expected 3")
+                while len(suggestions) < 3:
+                    suggestions.append("Keep practicing and refining your approach.")
+                result["suggestions"] = suggestions[:3]
                 
         except (json.JSONDecodeError, ValueError, KeyError, AttributeError) as e:
             # Fallback response if JSON parsing fails
@@ -424,14 +492,52 @@ async def calculate_rizz(request: CalculateRizzRequest):
         print(f"   Score: {result['score']}")
         print(f"   Suggestions count: {len(result.get('suggestions', []))}")
         
-        print(f"\n📤 Step 5: Returning response...")
+        print(f"\n📤 Step 5: Generating meme...")
+        # Generate meme with the rizz score
+        meme_url = None
+        if generate_meme_and_upload:
+            try:
+                meme_url = generate_meme_and_upload(result["score"], supabase)
+                print(f"✅ Meme generated: {meme_url}")
+            except Exception as e:
+                print(f"⚠️ Meme generation failed: {e}")
+                import traceback
+                print(f"   Traceback: {traceback.format_exc()}")
+                meme_url = None  # Continue without meme if generation fails
+        else:
+            print(f"⚠️ Meme generation disabled (module not found)")
+        
+        print(f"\n📤 Step 6: Storing score in database...")
+        # Store score in Supabase with nickname
+        try:
+            score_data = {
+                "nickname": nickname,
+                "rizz_score": result["score"],
+                "suggestions": result["suggestions"],
+                "reasoning": result.get("reasoning", ""),
+                "image_url": image_url,
+                "meme_url": meme_url
+            }
+            
+            db_response = supabase.table("scores").insert(score_data).execute()
+            print(f"✅ Score stored in database")
+            print(f"   Score ID: {db_response.data[0]['id'] if db_response.data else 'N/A'}")
+        except Exception as e:
+            print(f"⚠️ Failed to store score in database: {e}")
+            import traceback
+            print(f"   Traceback: {traceback.format_exc()}")
+            # Continue even if database storage fails
+        
+        print(f"\n📤 Step 7: Returning response...")
         print(f"{'='*60}\n")
         
         return {
             "score": result["score"],
             "suggestions": result["suggestions"],
             "reasoning": result.get("reasoning", ""),
-            "image_url": image_url
+            "image_url": image_url,
+            "meme_url": meme_url,
+            "nickname": nickname
         }
         
     except HTTPException as e:
@@ -444,6 +550,57 @@ async def calculate_rizz(request: CalculateRizzRequest):
         print(f"   Traceback: {traceback.format_exc()}")
         print(f"{'='*60}\n")
         raise HTTPException(status_code=500, detail=f"Error processing image: {str(e)}")
+
+
+@app.get("/leaderboard/")
+def get_leaderboard():
+    """
+    Get top 10 users by average rizz score (grouped by nickname)
+    """
+    try:
+        # Use Supabase function if available, otherwise query directly
+        try:
+            response = supabase.rpc("get_leaderboard").execute()
+            if response.data:
+                return {"leaderboard": response.data}
+        except Exception as rpc_error:
+            print(f"⚠️ RPC function not available, using direct query: {rpc_error}")
+        
+        # Fallback: Direct query
+        response = supabase.table("scores").select("nickname, rizz_score").execute()
+        
+        if not response.data:
+            return {"leaderboard": []}
+        
+        # Group by nickname and calculate average
+        nickname_scores = {}
+        for score in response.data:
+            nickname = score.get("nickname", "Anonymous")
+            if nickname not in nickname_scores:
+                nickname_scores[nickname] = []
+            nickname_scores[nickname].append(score.get("rizz_score", 0))
+        
+        # Calculate averages and sort
+        leaderboard = []
+        for nickname, scores in nickname_scores.items():
+            avg_score = sum(scores) / len(scores)
+            leaderboard.append({
+                "nickname": nickname,
+                "avg_rizz": round(avg_score),
+                "total_scores": len(scores)
+            })
+        
+        # Sort by average score (descending) and limit to top 10
+        leaderboard.sort(key=lambda x: x["avg_rizz"], reverse=True)
+        leaderboard = leaderboard[:10]
+        
+        return {"leaderboard": leaderboard}
+        
+    except Exception as e:
+        print(f"❌ Error fetching leaderboard: {e}")
+        import traceback
+        print(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=f"Error fetching leaderboard: {str(e)}")
 
 
 if __name__ == "__main__":
