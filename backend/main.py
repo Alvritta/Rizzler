@@ -508,25 +508,36 @@ CRITICAL: suggestions MUST be an array of exactly 3 strings. Each suggestion sho
             print(f"⚠️ Meme generation disabled (module not found)")
         
         print(f"\n📤 Step 6: Storing score in database...")
-        # Store score in Supabase with nickname
-        try:
-            score_data = {
-                "nickname": nickname,
-                "rizz_score": result["score"],
-                "suggestions": result["suggestions"],
-                "reasoning": result.get("reasoning", ""),
-                "image_url": image_url,
-                "meme_url": meme_url
-            }
-            
-            db_response = supabase.table("scores").insert(score_data).execute()
-            print(f"✅ Score stored in database")
-            print(f"   Score ID: {db_response.data[0]['id'] if db_response.data else 'N/A'}")
-        except Exception as e:
-            print(f"⚠️ Failed to store score in database: {e}")
-            import traceback
-            print(f"   Traceback: {traceback.format_exc()}")
-            # Continue even if database storage fails
+        # Store score in Supabase with nickname (non-blocking)
+        import threading
+        import queue
+        
+        def store_score_async():
+            """Store score in database asynchronously"""
+            try:
+                score_data = {
+                    "nickname": nickname,
+                    "rizz_score": result["score"],
+                    "suggestions": result["suggestions"],
+                    "reasoning": result.get("reasoning", ""),
+                    "image_url": image_url,
+                    "meme_url": meme_url
+                }
+                
+                db_response = supabase.table("scores").insert(score_data).execute()
+                print(f"✅ Score stored in database")
+                print(f"   Score ID: {db_response.data[0]['id'] if db_response.data else 'N/A'}")
+            except Exception as e:
+                print(f"⚠️ Failed to store score in database: {e}")
+                import traceback
+                print(f"   Traceback: {traceback.format_exc()}")
+        
+        # Start database insert in background thread (fire and forget)
+        db_thread = threading.Thread(target=store_score_async, daemon=True)
+        db_thread.start()
+        
+        # Don't wait for database insert - return response immediately
+        print(f"📤 Database insert started in background...")
         
         print(f"\n📤 Step 7: Returning response...")
         print(f"{'='*60}\n")
