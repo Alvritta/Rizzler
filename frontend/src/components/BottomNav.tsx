@@ -1,4 +1,4 @@
-import { Calculator, Trophy, History } from "lucide-react";
+import { Calculator, Trophy } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 const BottomNav = () => {
@@ -7,7 +7,6 @@ const BottomNav = () => {
   const navItems = [
     { icon: Calculator, label: "Analyze", path: "/" },
     { icon: Trophy, label: "Leaderboard", path: "/leaderboard" },
-    { icon: History, label: "History", path: "/history" },
   ];
 
   return (

@@ -1,23 +1,45 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Crown } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 
-const Leaderboard = () => {
-  const [period, setPeriod] = useState("weekly");
+// Backend URL
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8003";
 
-  const leaderboardData = [
-    { rank: 1, username: "Rizzler99", score: 9.8 },
-    { rank: 2, username: "CharmKing", score: 9.5 },
-    { rank: 3, username: "SmoothTalker", score: 9.3 },
-    { rank: 4, username: "FlirtMaster", score: 9.1 },
-    { rank: 5, username: "RizzGod", score: 9.0 },
-    { rank: 6, username: "CharmLord", score: 8.9 },
-    { rank: 7, username: "SmileWizard", score: 8.8 },
-    { rank: 8, username: "ChatPro", score: 8.7 },
-  ];
+const Leaderboard = () => {
+  const [leaderboardData, setLeaderboardData] = useState<Array<{rank: number, nickname: string, score: number}>>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchLeaderboard = async () => {
+      try {
+        const response = await fetch(`${BACKEND_URL}/leaderboard/`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch leaderboard");
+        }
+        const data = await response.json();
+        
+        // Transform data to match component format
+        const transformed = data.leaderboard.map((entry: any, index: number) => ({
+          rank: index + 1,
+          nickname: entry.nickname || "Anonymous",
+          score: entry.avg_rizz, // Keep 0-100 scale
+          total_scores: entry.total_scores || 1
+        }));
+        
+        setLeaderboardData(transformed);
+      } catch (error) {
+        console.error("Error fetching leaderboard:", error);
+        // Keep empty array on error
+        setLeaderboardData([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLeaderboard();
+  }, []);
 
   return (
     <div className="min-h-screen pb-20 px-4">
@@ -32,22 +54,25 @@ const Leaderboard = () => {
           </p>
         </header>
 
-        <Tabs value={period} onValueChange={setPeriod} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 bg-card">
-            <TabsTrigger value="weekly">Weekly</TabsTrigger>
-            <TabsTrigger value="monthly">Monthly</TabsTrigger>
-            <TabsTrigger value="alltime">All-Time</TabsTrigger>
-          </TabsList>
-        </Tabs>
+        {/* Removed tabs - only showing all-time leaderboard */}
 
-        <div className="space-y-2 animate-fade-in">
-          {leaderboardData.map((entry, index) => (
-            <Card
-              key={entry.rank}
-              className={`p-4 bg-card border-border transition-all hover:border-primary ${
-                index < 3 ? "border-primary/50" : ""
-              }`}
-            >
+        {loading ? (
+          <div className="text-center py-8 text-muted-foreground">
+            Loading leaderboard...
+          </div>
+        ) : leaderboardData.length === 0 ? (
+          <div className="text-center py-8 text-muted-foreground">
+            No scores yet. Be the first to get on the leaderboard!
+          </div>
+        ) : (
+          <div className="space-y-2 animate-fade-in">
+            {leaderboardData.map((entry, index) => (
+              <Card
+                key={entry.rank}
+                className={`p-4 bg-card border-border transition-all hover:border-primary ${
+                  index < 3 ? "border-primary/50" : ""
+                }`}
+              >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <span
@@ -65,7 +90,7 @@ const Leaderboard = () => {
                   </span>
                   <div>
                     <p className="font-semibold text-foreground">
-                      {entry.username}
+                      {entry.nickname}
                     </p>
                     {index < 3 && (
                       <Badge variant="secondary" className="text-xs">
@@ -74,13 +99,21 @@ const Leaderboard = () => {
                     )}
                   </div>
                 </div>
-                <span className="text-xl font-bold text-primary">
-                  {entry.score}/10
-                </span>
+                <div className="text-right">
+                  <span className="text-xl font-bold text-primary">
+                    {entry.score}/100
+                  </span>
+                  {entry.total_scores > 1 && (
+                    <p className="text-xs text-muted-foreground">
+                      {entry.total_scores} scores
+                    </p>
+                  )}
+                </div>
               </div>
             </Card>
           ))}
-        </div>
+          </div>
+        )}
       </div>
       <BottomNav />
     </div>

@@ -89,3 +89,288 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+/* Vintage Theme (Orkut/OG Facebook Style) - Authentic 2000s Look */
+.vintage-theme {
+  --background: 210 20% 92%;
+  --foreground: 210 10% 15%;
+  --card: 0 0% 100%;
+  --card-foreground: 210 10% 15%;
+  --primary: 210 100% 45%;
+  --secondary: 30 70% 55%;
+  --muted: 210 15% 88%;
+  --muted-foreground: 210 5% 45%;
+  --accent: 210 100% 45%;
+  --border: 210 20% 80%;
+  --radius: 0.25rem;
+}
+
+.vintage-theme body {
+  background: #f0f2f5 !important;
+  background-image: none !important;
+  font-family: 'Lucida Grande', 'Tahoma', 'Arial', 'Helvetica', sans-serif !important;
+  font-size: 11px !important;
+  color: #333333 !important;
+}
+
+.vintage-theme .bg-card,
+.vintage-theme [class*="bg-card"],
+.vintage-theme [class*="Card"] {
+  background: #ffffff !important;
+  border: 1px solid #ccd0d5 !important;
+  border-radius: 0 !important;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05) !important;
+  padding: 10px !important;
+}
+
+.vintage-theme .text-primary,
+.vintage-theme [class*="text-primary"] {
+  color: #4267b2 !important;
+}
+
+.vintage-theme .text-secondary,
+.vintage-theme [class*="text-secondary"] {
+  color: #8b4513 !important;
+}
+
+.vintage-theme .text-foreground {
+  color: #333333 !important;
+}
+
+.vintage-theme .text-muted-foreground {
+  color: #666666 !important;
+}
+
+.vintage-theme button,
+.vintage-theme [class*="button"] {
+  background: #4267b2 !important;
+  border: 1px solid #29487d !important;
+  color: #ffffff !important;
+  font-weight: bold !important;
+  font-size: 11px !important;
+  padding: 6px 12px !important;
+  border-radius: 2px !important;
+  text-transform: none !important;
+  cursor: pointer !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+}
+
+.vintage-theme button:hover,
+.vintage-theme [class*="button"]:hover {
+  background: #365899 !important;
+  border-color: #29487d !important;
+}
+
+.vintage-theme button:active,
+.vintage-theme [class*="button"]:active {
+  background: #29487d !important;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+}
+
+.vintage-theme button[class*="outline"],
+.vintage-theme button[class*="ghost"] {
+  background: #f0f2f5 !important;
+  border: 1px solid #ccd0d5 !important;
+  color: #333333 !important;
+}
+
+.vintage-theme button[class*="outline"]:hover,
+.vintage-theme button[class*="ghost"]:hover {
+  background: #e4e6eb !important;
+  border-color: #b3b8c0 !important;
+}
+
+.vintage-theme input,
+.vintage-theme [class*="input"],
+.vintage-theme textarea {
+  border: 1px solid #ccd0d5 !important;
+  background: #ffffff !important;
+  border-radius: 0 !important;
+  padding: 6px 8px !important;
+  font-size: 11px !important;
+  color: #333333 !important;
+}
+
+.vintage-theme input:focus,
+.vintage-theme [class*="input"]:focus,
+.vintage-theme textarea:focus {
+  border-color: #4267b2 !important;
+  outline: none !important;
+  box-shadow: 0 0 0 1px #4267b2 !important;
+}
+
+.vintage-theme .bg-gradient-to-r,
+.vintage-theme [class*="bg-gradient"] {
+  background: #4267b2 !important;
+  background-image: none !important;
+}
+
+/* Remove all rounded corners */
+.vintage-theme * {
+  border-radius: 0 !important;
+}
+
+.vintage-theme .rounded-xl,
+.vintage-theme .rounded-lg,
+.vintage-theme .rounded-md,
+.vintage-theme .rounded {
+  border-radius: 0 !important;
+}
+
+/* Vintage text styles */
+.vintage-theme h1,
+.vintage-theme h2,
+.vintage-theme h3 {
+  font-weight: bold !important;
+  color: #333333 !important;
+  font-family: 'Lucida Grande', 'Tahoma', 'Arial', sans-serif !important;
+}
+
+.vintage-theme h1 {
+  font-size: 18px !important;
+}
+
+.vintage-theme h2 {
+  font-size: 14px !important;
+}
+
+.vintage-theme h3 {
+  font-size: 12px !important;
+}
+
+/* Vintage card headers */
+.vintage-theme [class*="card"] {
+  background: #ffffff !important;
+  border: 1px solid #ccd0d5 !important;
+}
+
+.vintage-theme [class*="card"] h2,
+.vintage-theme [class*="card"] h3 {
+  background: #f0f2f5 !important;
+  border-bottom: 1px solid #ccd0d5 !important;
+  padding: 10px 12px !important;
+  margin: -10px -10px 10px -10px !important;
+  font-weight: bold !important;
+  color: #333333 !important;
+  font-size: 13px !important;
+}
+
+/* Vintage badges */
+.vintage-theme [class*="badge"] {
+  background: #f0f2f5 !important;
+  border: 1px solid #ccd0d5 !important;
+  color: #333333 !important;
+  font-size: 10px !important;
+  padding: 3px 8px !important;
+  border-radius: 2px !important;
+  font-weight: bold !important;
+}
+
+/* Vintage navigation */
+.vintage-theme nav {
+  background: #ffffff !important;
+  border-top: 2px solid #ccd0d5 !important;
+  box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.1) !important;
+}
+
+.vintage-theme nav a {
+  color: #333333 !important;
+  font-size: 11px !important;
+  font-weight: bold !important;
+  padding: 8px 12px !important;
+}
+
+.vintage-theme nav a:hover {
+  background: #f0f2f5 !important;
+}
+
+.vintage-theme nav a[class*="active"],
+.vintage-theme nav a[aria-current="page"],
+.vintage-theme nav a[class*="text-primary"] {
+  background: #4267b2 !important;
+  color: #ffffff !important;
+}
+
+/* Vintage links */
+.vintage-theme a:not(button):not([class*="button"]) {
+  color: #4267b2 !important;
+  text-decoration: none !important;
+}
+
+.vintage-theme a:not(button):not([class*="button"]):hover {
+  text-decoration: underline !important;
+}
+
+/* Remove modern effects */
+.vintage-theme * {
+  backdrop-filter: none !important;
+  text-shadow: none !important;
+}
+
+.vintage-theme [class*="backdrop-blur"] {
+  backdrop-filter: none !important;
+}
+
+/* Vintage shadows - minimal */
+.vintage-theme [class*="shadow"] {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Vintage spacing - tighter */
+.vintage-theme [class*="space-y"] > * + * {
+  margin-top: 8px !important;
+}
+
+.vintage-theme [class*="gap"] {
+  gap: 6px !important;
+}
+
+/* Vintage images */
+.vintage-theme img {
+  border: 1px solid #ccd0d5 !important;
+  border-radius: 0 !important;
+}
+
+/* Vintage progress bars */
+.vintage-theme [class*="progress"] {
+  background: #f0f2f5 !important;
+  border: 1px solid #ccd0d5 !important;
+  height: 18px !important;
+  border-radius: 0 !important;
+}
+
+.vintage-theme [class*="progress"] [class*="bg"],
+.vintage-theme [class*="progress"] [style*="background"] {
+  background: #4267b2 !important;
+  border-radius: 0 !important;
+}
+
+/* Remove all animations and transitions in vintage mode */
+.vintage-theme * {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* Vintage header styles */
+.vintage-theme header {
+  background: #ffffff !important;
+  border-bottom: 1px solid #ccd0d5 !important;
+  padding: 12px !important;
+}
+
+/* Vintage spacing adjustments */
+.vintage-theme [class*="space-y-6"] > * + * {
+  margin-top: 12px !important;
+}
+
+.vintage-theme [class*="space-y-4"] > * + * {
+  margin-top: 10px !important;
+}
+
+.vintage-theme [class*="gap-4"] {
+  gap: 8px !important;
+}
+
+.vintage-theme [class*="gap-2"] {
+  gap: 4px !important;
+}

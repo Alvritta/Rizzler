@@ -1,73 +1,75 @@
-# Welcome to your Lovable project
+# Frontend - Rizz Calculator
 
-## Project info
+React/TypeScript frontend integrated with the backend API.
 
-**URL**: https://lovable.dev/projects/28b94383-233d-49fe-88b9-4c43f644d615
+## Setup
 
-## How can I edit this code?
+1. **Install dependencies:**
+   ```bash
+   cd frontend
+   npm install
+   # or
+   bun install
+   ```
 
-There are several ways of editing your application.
+2. **Configure backend URL:**
+   
+   Create a `.env` file in the `frontend/` directory:
+   ```env
+   VITE_BACKEND_URL=http://localhost:8003
+   ```
+   
+   Or update the default in `src/pages/Analyzer.tsx` and `src/pages/Loading.tsx`:
+   ```typescript
+   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8003";
+   ```
 
-**Use Lovable**
+3. **Run the development server:**
+   ```bash
+   npm run dev
+   # or
+   bun dev
+   ```
+   
+   The frontend will be available at `http://localhost:8080`
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/28b94383-233d-49fe-88b9-4c43f644d615) and start prompting.
+## Features
 
-Changes made via Lovable will be committed automatically to this repo.
+### Button 1: Upload Screenshot
+- Click "Select Screenshot" to choose an image file
+- Shows image preview
+- Click "Upload Screenshot" to upload to backend
+- Calls `/upload_screenshot/` endpoint
+- Enables "Analyze My Rizz" button after successful upload
 
-**Use your preferred IDE**
+### Button 2: Analyze My Rizz
+- Only enabled after successful upload
+- Navigates to loading page
+- Loading page calls `/calculate_rizz/` endpoint with image_url
+- Shows progress while analyzing
+- Navigates to results page with score and suggestions
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## Flow
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```
+1. User selects image → Preview shown
+2. User clicks "Upload Screenshot" → Calls /upload_screenshot/
+   → Returns: { success: true, image_url: "..." }
+   → Button 2 enabled
+3. User clicks "Analyze My Rizz" → Navigate to /loading
+   → Loading page calls /calculate_rizz/ with image_url
+   → Returns: { score: 85, suggestions: [...], reasoning: "..." }
+4. Navigate to /results → Display score and feedback
 ```
 
-**Edit a file directly in GitHub**
+## API Integration
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+- **Upload Screenshot**: `POST /upload_screenshot/` (multipart/form-data)
+- **Calculate Rizz**: `POST /calculate_rizz/` (JSON body with image_url)
 
-**Use GitHub Codespaces**
+## Notes
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/28b94383-233d-49fe-88b9-4c43f644d615) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+- No authentication required (guest mode)
+- Image validation: max 5MB, image files only
+- Toast notifications for success/error feedback
+- Responsive design with modern UI
